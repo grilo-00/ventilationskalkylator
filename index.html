@@ -4,32 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ventilationskalkylator – dimensionera ditt FTX-system</title>
-<meta name="description" content="Gratis kalkylator för att uppskatta ditt ventilationsbehov enligt Boverkets byggregler (BBR). Räkna ut luftflöde, luftomsättning och FTX-aggregatets storlek för villa, lägenhet eller kontor.">
+<meta name="description" content="Gratis kalkylator för ventilationsbehov enligt BBR: luftflöde (l/s, m³/h), luftomsättning, energibesparing från värmeåtervinning samt enhetsomvandlare. / Free ventilation sizing calculator.">
 <style>
-  :root{
-    --bg:#f4f7f8; --card:#ffffff; --ink:#13343b; --muted:#5b7178;
-    --brand:#0e7c86; --brand-dark:#0a5e66; --accent:#e8f3f4; --line:#dde7e9;
-    --good:#1f9d57; --warn:#c9821a;
-  }
+  :root{--bg:#f4f7f8;--card:#fff;--ink:#13343b;--muted:#5b7178;--brand:#0e7c86;--brand-dark:#0a5e66;--accent:#e8f3f4;--line:#dde7e9;--good:#1f9d57;--warn:#c9821a}
   *{box-sizing:border-box}
-  body{
-    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg); color:var(--ink); line-height:1.55;
-  }
-  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 64px}
-  header.hero{padding:28px 0 8px}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+  .wrap{max-width:880px;margin:0 auto;padding:18px 18px 64px}
+  .topbar{display:flex;justify-content:flex-end;padding-top:10px}
+  .lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+  .lang button{border:0;background:#fff;padding:6px 14px;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer}
+  .lang button.active{background:var(--brand);color:#fff}
+  header.hero{padding:14px 0 8px}
   .hero h1{font-size:1.9rem;margin:0 0 8px;letter-spacing:-.01em}
-  .hero p{color:var(--muted);margin:0;font-size:1.05rem;max-width:60ch}
+  .hero p{color:var(--muted);margin:0;font-size:1.05rem;max-width:62ch}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:22px;box-shadow:0 1px 2px rgba(19,52,59,.04)}
   h2{font-size:1.15rem;margin:0 0 16px}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
   @media(max-width:560px){.grid{grid-template-columns:1fr}.hero h1{font-size:1.55rem}}
   label{display:block;font-size:.9rem;font-weight:600;margin-bottom:5px}
   .hint{font-weight:400;color:var(--muted);font-size:.82rem}
-  input[type=number],select{
-    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;
-    font-size:1rem;background:#fff;color:var(--ink)
-  }
+  input[type=number],select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:1rem;background:#fff;color:var(--ink)}
   input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--accent)}
   .results{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
   @media(max-width:560px){.results{grid-template-columns:1fr}}
@@ -43,171 +37,180 @@
   td.r,th.r{text-align:right}
   .note{font-size:.82rem;color:var(--muted);margin-top:14px}
   .badge{display:inline-block;font-size:.78rem;padding:3px 9px;border-radius:999px;background:var(--accent);color:var(--brand-dark);font-weight:600}
+  .verdict{margin-top:16px;font-size:.95rem;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fbfdfd}
+  .conv{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:end}
+  @media(max-width:560px){.conv{grid-template-columns:1fr}}
+  .swap{align-self:center;font-size:1.3rem;color:var(--muted);text-align:center;padding-bottom:8px}
   .cta{margin-top:22px;background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:#fff;border-radius:14px;padding:22px 24px}
-  .cta h2{color:#fff;margin-bottom:6px}
-  .cta p{margin:0 0 14px;opacity:.92}
+  .cta h2{color:#fff;margin-bottom:6px}.cta p{margin:0 0 14px;opacity:.92}
   .cta a{display:inline-block;background:#fff;color:var(--brand-dark);text-decoration:none;font-weight:700;padding:11px 20px;border-radius:10px}
   .cta a:hover{background:#eafafa}
   footer{margin-top:30px;font-size:.8rem;color:var(--muted);text-align:center}
-  .verdict{margin-top:16px;font-size:.95rem;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fbfdfd}
+  footer a{color:var(--brand-dark)}
 </style>
 </head>
 <body>
 <div class="wrap">
 
+  <div class="topbar">
+    <div class="lang">
+      <button id="sv" class="active" onclick="setLang('sv')">SV</button>
+      <button id="en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
   <header class="hero">
-    <span class="badge">Gratis verktyg</span>
-    <h1>Ventilationskalkylator</h1>
-    <p>Uppskatta ventilationsbehovet för din bostad eller lokal och få en grov dimensionering av FTX-aggregatet. Beräkningarna utgår från Boverkets byggregler (BBR).</p>
+    <span class="badge" data-t="badge">Gratis verktyg</span>
+    <h1 data-t="title">Ventilationskalkylator</h1>
+    <p data-t="intro">Uppskatta ventilationsbehovet och få en grov dimensionering av FTX-aggregatet. Beräkningarna utgår från Boverkets byggregler (BBR).</p>
   </header>
 
   <section class="card">
-    <h2>1. Beskriv utrymmet</h2>
+    <h2 data-t="s1">1. Beskriv utrymmet</h2>
     <div class="grid">
-      <div>
-        <label>Golvyta (Atemp) <span class="hint">m²</span></label>
-        <input id="area" type="number" min="0" value="120">
-      </div>
-      <div>
-        <label>Takhöjd <span class="hint">m</span></label>
-        <input id="height" type="number" min="0" step="0.1" value="2.5">
-      </div>
-      <div>
-        <label>Typ av utrymme</label>
-        <select id="usetype">
-          <option value="dwelling" selected>Bostad (villa / lägenhet)</option>
-          <option value="office">Kontor</option>
-        </select>
-      </div>
-      <div>
-        <label>Antal personer <span class="hint">vid kontor</span></label>
-        <input id="people" type="number" min="0" value="0">
-      </div>
+      <div><label><span data-t="l_area">Golvyta (Atemp)</span> <span class="hint">m²</span></label><input id="area" type="number" min="0" value="120"></div>
+      <div><label><span data-t="l_height">Takhöjd</span> <span class="hint">m</span></label><input id="height" type="number" min="0" step="0.1" value="2.5"></div>
+      <div><label data-t="l_use">Typ av utrymme</label>
+        <select id="usetype"><option value="dwelling" data-t="o_dwelling">Bostad (villa / lägenhet)</option><option value="office" data-t="o_office">Kontor</option></select></div>
+      <div><label><span data-t="l_people">Antal personer</span> <span class="hint" data-t="l_people_h">vid kontor</span></label><input id="people" type="number" min="0" value="0"></div>
     </div>
-
-    <h2 style="margin-top:22px">2. Våtutrymmen och kök <span class="hint">(frånluftsrum)</span></h2>
+    <h2 style="margin-top:22px"><span data-t="s2">2. Våtutrymmen och kök</span> <span class="hint" data-t="s2h">(frånluftsrum)</span></h2>
     <div class="grid">
-      <div><label>Kök</label><input id="kitchen" type="number" min="0" value="1"></div>
-      <div><label>Badrum / duschrum</label><input id="bath" type="number" min="0" value="2"></div>
-      <div><label>Separat WC</label><input id="wc" type="number" min="0" value="1"></div>
-      <div><label>Tvättstuga / klädvård</label><input id="laundry" type="number" min="0" value="1"></div>
+      <div><label data-t="l_kitchen">Kök</label><input id="kitchen" type="number" min="0" value="1"></div>
+      <div><label data-t="l_bath">Badrum / duschrum</label><input id="bath" type="number" min="0" value="2"></div>
+      <div><label data-t="l_wc">Separat WC</label><input id="wc" type="number" min="0" value="1"></div>
+      <div><label data-t="l_laundry">Tvättstuga / klädvård</label><input id="laundry" type="number" min="0" value="1"></div>
     </div>
   </section>
 
   <section class="card">
-    <h2>Resultat</h2>
+    <h2 data-t="res">Resultat</h2>
     <div class="results">
-      <div class="stat"><div class="num"><span id="flow_ls">–</span></div><div class="unit">l/s</div><div class="lbl">Dimensionerande flöde</div></div>
-      <div class="stat"><div class="num"><span id="flow_m3h">–</span></div><div class="unit">m³/h</div><div class="lbl">Samma flöde i m³/h</div></div>
-      <div class="stat"><div class="num"><span id="ach">–</span></div><div class="unit">oms/h</div><div class="lbl">Luftomsättning</div></div>
+      <div class="stat"><div class="num"><span id="flow_ls">–</span></div><div class="unit">l/s</div><div class="lbl" data-t="r_flow">Dimensionerande flöde</div></div>
+      <div class="stat"><div class="num"><span id="flow_m3h">–</span></div><div class="unit">m³/h</div><div class="lbl" data-t="r_m3h">Samma flöde i m³/h</div></div>
+      <div class="stat"><div class="num"><span id="ach">–</span></div><div class="unit" data-t="u_ach">oms/h</div><div class="lbl" data-t="r_ach">Luftomsättning</div></div>
     </div>
-
     <div class="verdict" id="verdict"></div>
-
-    <h2 style="margin-top:22px">Så här räknas det fram</h2>
+    <h2 style="margin-top:22px" data-t="how">Så här räknas det fram</h2>
     <table>
-      <thead><tr><th>Grund för dimensionering</th><th class="r">l/s</th></tr></thead>
+      <thead><tr><th data-t="t_basis">Grund för dimensionering</th><th class="r">l/s</th></tr></thead>
       <tbody id="breakdown"></tbody>
-      <tfoot>
-        <tr><th>Dimensionerande (det största värdet)</th><th class="r" id="govern">–</th></tr>
-      </tfoot>
+      <tfoot><tr><th data-t="t_gov">Dimensionerande (det största värdet)</th><th class="r" id="govern">–</th></tr></tfoot>
     </table>
-    <p class="note">Frånluft och tilluft balanseras lika i ett FTX-system. Det dimensionerande flödet är det högsta av (a) grundkravet per golvyta och (b) summan av minimiflöden från våtutrymmen/kök.</p>
+    <p class="note" data-t="note1">Frånluft och tilluft balanseras lika i ett FTX-system. Det dimensionerande flödet är det högsta av (a) grundkravet per golvyta och (b) summan av minimiflöden från våtutrymmen/kök.</p>
   </section>
 
   <section class="card">
-    <h2>Rekommenderat FTX-aggregat</h2>
-    <p style="margin:0 0 4px">Sök ett aggregat som klarar minst <strong id="rec">–</strong> vid normalt drifttryck (ca 100–150 Pa), med marginal för forcering i kök/badrum.</p>
-    <p class="note">Detta är en grov vägledning. Verklig dimensionering tar även hänsyn till kanaldragning, tryckfall, ljudkrav, värmeåtervinning och forceringsbehov – och bör göras av en fackman.</p>
+    <h2 data-t="hr">Energibesparing från värmeåtervinning</h2>
+    <p class="note" style="margin-top:0" data-t="hr_intro">Ett FTX-aggregat återvinner värme ur frånluften. Uppskatta hur mycket energi och pengar det sparar per år.</p>
+    <div class="grid">
+      <div><label><span data-t="hr_eff">Temperaturverkningsgrad</span> <span class="hint">%</span></label><input id="eff" type="number" min="0" max="95" value="80"></div>
+      <div><label><span data-t="hr_dh">Gradtimmar (klimat)</span> <span class="hint">K·h/år</span></label><input id="deghours" type="number" min="0" value="100000"></div>
+      <div><label><span data-t="hr_price">Energipris</span> <span class="hint">SEK/kWh</span></label><input id="eprice" type="number" min="0" step="0.1" value="1.5"></div>
+    </div>
+    <div class="results" style="margin-top:14px">
+      <div class="stat"><div class="num"><span id="kwh">–</span></div><div class="unit">kWh/år</div><div class="lbl" data-t="hr_energy">Återvunnen energi</div></div>
+      <div class="stat"><div class="num"><span id="sek">–</span></div><div class="unit">SEK/år</div><div class="lbl" data-t="hr_money">Uppskattad besparing</div></div>
+    </div>
+    <p class="note" data-t="hr_note">Förenklad beräkning: 0,33 Wh/(m³·K) × flöde × verkningsgrad × gradtimmar. Gradtimmar varierar med ort och inställd inomhustemperatur; 100 000 K·h/år är ett grovt mellansvenskt riktvärde.</p>
+  </section>
+
+  <section class="card">
+    <h2 data-t="cv">Enhetsomvandlare: l/s ⇄ m³/h</h2>
+    <div class="conv">
+      <div><label>l/s</label><input id="cv_ls" type="number" min="0" value="50"></div>
+      <div class="swap">⇄</div>
+      <div><label>m³/h</label><input id="cv_m3h" type="number" min="0" value="180"></div>
+    </div>
+    <p class="note" data-t="cv_note">1 l/s = 3,6 m³/h. Skriv i valfritt fält så räknas det andra om.</p>
   </section>
 
   <section class="cta">
-    <h2>Vill du ha hjälp att projektera och installera?</h2>
-    <p>Pureflow dimensionerar, installerar och injusterar kompletta ventilationssystem för villa, BRF, kontor och industri – med mätprotokoll före och efter.</p>
-    <a href="https://pureflow.nu/" target="_blank" rel="noopener">Kontakta Pureflow →</a>
+    <h2 data-t="cta_h">Vill du ha hjälp att projektera och installera?</h2>
+    <p data-t="cta_p">Pureflow dimensionerar, installerar och injusterar kompletta ventilationssystem för villa, BRF, kontor och industri – med mätprotokoll före och efter.</p>
+    <a href="https://pureflow.nu/" target="_blank" rel="noopener" data-t="cta_a">Kontakta Pureflow →</a>
   </section>
 
   <footer>
-    Kalkylatorn ger en uppskattning baserad på BBR:s grundkrav (0,35 l/s·m² för bostäder) och vedertagna minimiflöden för våtutrymmen. Den ersätter inte en projektering. ·
-    Verktyg framtaget med data från <a href="https://pureflow.nu/" target="_blank" rel="noopener">pureflow.nu</a>.
+    <span data-t="foot">Kalkylatorn ger en uppskattning baserad på BBR:s grundkrav (0,35 l/s·m² för bostäder) och vedertagna minimiflöden för våtutrymmen. Den ersätter inte en projektering.</span>
+    · <span data-t="foot2">Verktyg framtaget med data från</span> <a href="https://pureflow.nu/" target="_blank" rel="noopener">pureflow.nu</a>.
   </footer>
-
 </div>
 
 <script>
-  // Minimiflöden för frånluft (l/s) – vedertagna värden enligt BBR/Boverket
-  const MIN = { kitchen:10, bath:10, wc:10, laundry:10 };
+const T={
+ sv:{badge:"Gratis verktyg",title:"Ventilationskalkylator",intro:"Uppskatta ventilationsbehovet och få en grov dimensionering av FTX-aggregatet. Beräkningarna utgår från Boverkets byggregler (BBR).",
+  s1:"1. Beskriv utrymmet",l_area:"Golvyta (Atemp)",l_height:"Takhöjd",l_use:"Typ av utrymme",o_dwelling:"Bostad (villa / lägenhet)",o_office:"Kontor",l_people:"Antal personer",l_people_h:"vid kontor",
+  s2:"2. Våtutrymmen och kök",s2h:"(frånluftsrum)",l_kitchen:"Kök",l_bath:"Badrum / duschrum",l_wc:"Separat WC",l_laundry:"Tvättstuga / klädvård",
+  res:"Resultat",r_flow:"Dimensionerande flöde",r_m3h:"Samma flöde i m³/h",u_ach:"oms/h",r_ach:"Luftomsättning",how:"Så här räknas det fram",t_basis:"Grund för dimensionering",t_gov:"Dimensionerande (det största värdet)",
+  note1:"Frånluft och tilluft balanseras lika i ett FTX-system. Det dimensionerande flödet är det högsta av (a) grundkravet per golvyta och (b) summan av minimiflöden från våtutrymmen/kök.",
+  hr:"Energibesparing från värmeåtervinning",hr_intro:"Ett FTX-aggregat återvinner värme ur frånluften. Uppskatta hur mycket energi och pengar det sparar per år.",hr_eff:"Temperaturverkningsgrad",hr_dh:"Gradtimmar (klimat)",hr_price:"Energipris",hr_energy:"Återvunnen energi",hr_money:"Uppskattad besparing",
+  hr_note:"Förenklad beräkning: 0,33 Wh/(m³·K) × flöde × verkningsgrad × gradtimmar. Gradtimmar varierar med ort och inställd inomhustemperatur; 100 000 K·h/år är ett grovt mellansvenskt riktvärde.",
+  cv:"Enhetsomvandlare: l/s ⇄ m³/h",cv_note:"1 l/s = 3,6 m³/h. Skriv i valfritt fält så räknas det andra om.",
+  cta_h:"Vill du ha hjälp att projektera och installera?",cta_p:"Pureflow dimensionerar, installerar och injusterar kompletta ventilationssystem för villa, BRF, kontor och industri – med mätprotokoll före och efter.",cta_a:"Kontakta Pureflow →",
+  foot:"Kalkylatorn ger en uppskattning baserad på BBR:s grundkrav (0,35 l/s·m² för bostäder) och vedertagna minimiflöden för våtutrymmen. Den ersätter inte en projektering.",foot2:"Verktyg framtaget med data från",
+  v_low:"Luftomsättningen ligger lågt. Kontrollera att flödet möter BBR:s grundkrav på minst 0,35 l/s·m².",v_ok:"Luftomsättningen ligger i ett sunt intervall för bostad (ca 0,5 oms/h).",v_high:"Hög luftomsättning – fullt möjligt, men kontrollera energiåtgång och dragrisk.",
+  v_off_lo:"För kontor styr ofta personlast och verksamhet – kontrollera mot verksamhetens krav.",v_off_ok:"God omsättning för lokal. Verifiera mot CO₂-nivåer i drift.",
+  b_area:"Grundkrav bostad: 0,35 l/s·m² ×",b_area_off:"Grundventilation lokal: 0,35 l/s·m² ×",b_exh:"Summa frånluft (kök + våtrum)",b_ppl:"Personlast: 7 l/s/person + 0,35 l/s·m²"},
+ en:{badge:"Free tool",title:"Ventilation calculator",intro:"Estimate the ventilation requirement and get a rough sizing of the heat-recovery (FTX) unit. Based on Sweden's building code (BBR).",
+  s1:"1. Describe the space",l_area:"Floor area",l_height:"Ceiling height",l_use:"Type of space",o_dwelling:"Dwelling (house / apartment)",o_office:"Office",l_people:"Number of people",l_people_h:"for offices",
+  s2:"2. Wet rooms and kitchen",s2h:"(exhaust rooms)",l_kitchen:"Kitchen",l_bath:"Bathroom / shower room",l_wc:"Separate WC",l_laundry:"Laundry / utility",
+  res:"Result",r_flow:"Design airflow",r_m3h:"Same airflow in m³/h",u_ach:"ACH",r_ach:"Air changes per hour",how:"How it's calculated",t_basis:"Basis for sizing",t_gov:"Governing (the larger value)",
+  note1:"Supply and exhaust are balanced in an FTX system. The design airflow is the larger of (a) the floor-area baseline and (b) the sum of minimum exhaust flows from wet rooms/kitchen.",
+  hr:"Energy savings from heat recovery",hr_intro:"An FTX unit recovers heat from the exhaust air. Estimate how much energy and money it saves per year.",hr_eff:"Temperature efficiency",hr_dh:"Degree-hours (climate)",hr_price:"Energy price",hr_energy:"Recovered energy",hr_money:"Estimated saving",
+  hr_note:"Simplified: 0.33 Wh/(m³·K) × airflow × efficiency × degree-hours. Degree-hours depend on location and indoor temperature; 100,000 K·h/yr is a rough central-Sweden value.",
+  cv:"Unit converter: l/s ⇄ m³/h",cv_note:"1 l/s = 3.6 m³/h. Type in either field to convert the other.",
+  cta_h:"Want help designing and installing?",cta_p:"Pureflow designs, installs and balances complete ventilation systems for homes, housing associations, offices and industry – with measurement protocols before and after.",cta_a:"Contact Pureflow →",
+  foot:"This calculator gives an estimate based on BBR's baseline (0.35 l/s·m² for dwellings) and standard minimum wet-room flows. It does not replace a professional design.",foot2:"Tool built with data from",
+  v_low:"Air change rate is low. Check that the airflow meets BBR's baseline of at least 0.35 l/s·m².",v_ok:"Air change rate is in a healthy range for a dwelling (about 0.5 ACH).",v_high:"High air change rate – possible, but check energy use and draught risk.",
+  v_off_lo:"For offices, occupancy and activity often govern – check against the operation's requirements.",v_off_ok:"Good air change for premises. Verify against CO₂ levels in operation.",
+  b_area:"Dwelling baseline: 0.35 l/s·m² ×",b_area_off:"Premises baseline: 0.35 l/s·m² ×",b_exh:"Sum of exhaust (kitchen + wet rooms)",b_ppl:"Occupancy: 7 l/s/person + 0.35 l/s·m²"}
+};
+let lang="sv";
+const MIN={kitchen:10,bath:10,wc:10,laundry:10};
+const ids=["area","height","usetype","people","kitchen","bath","wc","laundry","eff","deghours","eprice"];
+ids.forEach(id=>document.getElementById(id).addEventListener("input",calc));
+document.getElementById("cv_ls").addEventListener("input",()=>{const v=parseFloat(document.getElementById("cv_ls").value);document.getElementById("cv_m3h").value=isNaN(v)?"":(v*3.6).toFixed(1);});
+document.getElementById("cv_m3h").addEventListener("input",()=>{const v=parseFloat(document.getElementById("cv_m3h").value);document.getElementById("cv_ls").value=isNaN(v)?"":(v/3.6).toFixed(1);});
 
-  const ids = ["area","height","usetype","people","kitchen","bath","wc","laundry"];
-  ids.forEach(id => document.getElementById(id).addEventListener("input", calc));
-
-  function num(id){ const v = parseFloat(document.getElementById(id).value); return isNaN(v)?0:v; }
-
-  function calc(){
-    const area = num("area"), height = Math.max(num("height"),0.1);
-    const usetype = document.getElementById("usetype").value;
-    const people = num("people");
-    const k = num("kitchen"), b = num("bath"), w = num("wc"), l = num("laundry");
-
-    // (a) Grundkrav per golvyta
-    let perArea, perAreaLabel;
-    if(usetype === "dwelling"){
-      perArea = 0.35 * area;                 // BBR: 0,35 l/s·m² för bostäder
-      perAreaLabel = "Grundkrav bostad: 0,35 l/s·m² × " + area + " m²";
-    } else {
-      perArea = 0.35 * area;                 // grundventilation lokal
-      perAreaLabel = "Grundventilation lokal: 0,35 l/s·m² × " + area + " m²";
-    }
-
-    // Personlast (relevant för kontor): 7 l/s/person + 0,35 l/s·m²
-    const perPeople = usetype === "office" ? (people * 7 + 0.35 * area) : 0;
-
-    // (b) Summa frånluft våtutrymmen/kök
-    const exhaust = k*MIN.kitchen + b*MIN.bath + w*MIN.wc + l*MIN.laundry;
-
-    const candidates = [
-      { label: perAreaLabel, val: perArea },
-      { label: "Summa frånluft (kök + våtrum)", val: exhaust }
-    ];
-    if(usetype === "office"){
-      candidates.push({ label: "Personlast: 7 l/s/person + 0,35 l/s·m²", val: perPeople });
-    }
-
-    const govern = Math.max(...candidates.map(c=>c.val));
-    const m3h = govern * 3.6;
-    const volume = area * height;
-    const ach = volume > 0 ? (m3h / volume) : 0;
-
-    document.getElementById("flow_ls").textContent = govern.toFixed(0);
-    document.getElementById("flow_m3h").textContent = m3h.toFixed(0);
-    document.getElementById("ach").textContent = ach.toFixed(2);
-    document.getElementById("govern").textContent = govern.toFixed(0) + " l/s";
-
-    // Breakdown table
-    const tb = document.getElementById("breakdown");
-    tb.innerHTML = candidates.map(c =>
-      `<tr><td>${c.label}</td><td class="r">${c.val.toFixed(0)}</td></tr>`
-    ).join("");
-
-    // Recommendation with ~15% margin, rounded up to nearest 25 m3/h
-    const rec = Math.ceil((m3h * 1.15)/25)*25;
-    document.getElementById("rec").textContent = rec + " m³/h";
-
-    // Verdict on air change rate
-    const v = document.getElementById("verdict");
-    let msg, col;
-    if(usetype === "dwelling"){
-      if(ach < 0.4){ msg = "Luftomsättningen ligger lågt. Kontrollera att flödet möter BBR:s grundkrav på minst 0,35 l/s·m²."; col="var(--warn)"; }
-      else if(ach <= 0.9){ msg = "Luftomsättningen ligger i ett sunt intervall för bostad (ca 0,5 oms/h)."; col="var(--good)"; }
-      else { msg = "Hög luftomsättning – fullt möjligt, men kontrollera energiåtgång och dragrisk."; col="var(--warn)"; }
-    } else {
-      msg = ach < 1 ? "För kontor styr ofta personlast och verksamhet – kontrollera mot verksamhetens krav." : "God omsättning för lokal. Verifiera mot CO₂-nivåer i drift.";
-      col = "var(--good)";
-    }
-    v.innerHTML = `<strong style="color:${col}">●</strong> ${msg}`;
-  }
-
+function setLang(l){lang=l;document.documentElement.lang=l;
+  document.getElementById("sv").classList.toggle("active",l==="sv");
+  document.getElementById("en").classList.toggle("active",l==="en");
+  document.querySelectorAll("[data-t]").forEach(el=>{const k=el.getAttribute("data-t");if(T[l][k]!==undefined)el.textContent=T[l][k];});
   calc();
+}
+function num(id){const v=parseFloat(document.getElementById(id).value);return isNaN(v)?0:v;}
+function nf(n,d){return n.toLocaleString(lang==="sv"?"sv-SE":"en-US",{maximumFractionDigits:d||0});}
+
+function calc(){
+  const tr=T[lang];
+  const area=num("area"),height=Math.max(num("height"),0.1);
+  const usetype=document.getElementById("usetype").value,people=num("people");
+  const k=num("kitchen"),b=num("bath"),w=num("wc"),l=num("laundry");
+  const perArea=0.35*area;
+  const perPeople=usetype==="office"?(people*7+0.35*area):0;
+  const exhaust=k*MIN.kitchen+b*MIN.bath+w*MIN.wc+l*MIN.laundry;
+  const cands=[{label:(usetype==="dwelling"?tr.b_area:tr.b_area_off)+" "+nf(area)+" m²",val:perArea},{label:tr.b_exh,val:exhaust}];
+  if(usetype==="office")cands.push({label:tr.b_ppl,val:perPeople});
+  const govern=Math.max(...cands.map(c=>c.val));
+  const m3h=govern*3.6, volume=area*height, ach=volume>0?m3h/volume:0;
+  document.getElementById("flow_ls").textContent=nf(govern);
+  document.getElementById("flow_m3h").textContent=nf(m3h);
+  document.getElementById("ach").textContent=nf(ach,2);
+  document.getElementById("govern").textContent=nf(govern)+" l/s";
+  document.getElementById("breakdown").innerHTML=cands.map(c=>`<tr><td>${c.label}</td><td class="r">${nf(c.val)}</td></tr>`).join("");
+  // verdict
+  const vEl=document.getElementById("verdict");let msg,col;
+  if(usetype==="dwelling"){if(ach<0.4){msg=tr.v_low;col="var(--warn)";}else if(ach<=0.9){msg=tr.v_ok;col="var(--good)";}else{msg=tr.v_high;col="var(--warn)";}}
+  else{msg=ach<1?tr.v_off_lo:tr.v_off_ok;col="var(--good)";}
+  vEl.innerHTML=`<strong style="color:${col}">●</strong> ${msg}`;
+  // heat recovery
+  const eff=Math.min(num("eff"),95)/100, dh=num("deghours"), price=num("eprice");
+  const kwh=0.33*m3h*eff*dh/1000;   // Wh -> kWh
+  document.getElementById("kwh").textContent=nf(kwh);
+  document.getElementById("sek").textContent=nf(kwh*price);
+}
+setLang("sv");
 </script>
 </body>
 </html>
