@@ -213,6 +213,6 @@ function calc(){
 setLang("sv");
 </script>
 {SNIP}
-<script>(function(){function h(){var d=document.documentElement,b=document.body;var ht=Math.max(b.scrollHeight,d.scrollHeight,b.offsetHeight,d.offsetHeight);parent.postMessage({pfHeight:ht},"*");}window.addEventListener("load",h);window.addEventListener("resize",h);if(window.ResizeObserver){try{new ResizeObserver(h).observe(document.body);}catch(e){}}setInterval(h,800);})();</script>
+<script>(function(){function h(){var d=document.documentElement,b=document.body;var ht=Math.ceil(b.getBoundingClientRect().height);parent.postMessage({pfHeight:ht},"*");}window.addEventListener("load",h);window.addEventListener("resize",h);if(window.ResizeObserver){try{new ResizeObserver(h).observe(document.body);}catch(e){}}setInterval(h,800);})();</script>
 </body>
 </html>
